@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 import utility
-import win32api, win32con
+#import win32api, win32con
 
 
 vc = cv2.VideoCapture(0)
@@ -24,9 +24,11 @@ if vc.isOpened(): # try to get the first frame
 else:
     rval = False
 
+cascade = cv2.CascadeClassifier('lbpcascade_frontalface.xml')
 while rval:
     iterations = iterations +1
     print iterations
+    rectangles = cascade.detectMultiScale(frame)
     newHSV = np.zeros((height,width),np.uint8)
     framegray = cv2.cvtColor(frame,cv2.COLOR_BGR2HSV)
     justSkin = cv2.inRange(framegray,(lowH,lowS,lowV),(H,S,V))
@@ -44,13 +46,16 @@ while rval:
             max_index = x
     print len(contours)
     cv2.drawContours(newFrame,contours[max_index],-1,255,-1)
+    if not len(rectangles) == 0:
+        rectangle = rectangles[0]
+        cv2.rectangle(newFrame, (rectangle[0], rectangle[1]), (rectangle[0]+rectangle[2], rectangle[1]+rectangle[3]), (255,0,0))
     mu = cv2.moments(contours[max_index],False)
     centerOfMass = (int( mu['m10']/mu['m00']),int( mu['m01']/mu['m00']))
     #mu.get_m10()
     cv2.circle(newFrame, centerOfMass, 2, (140,140,140), 1 );
     #print win32con
     #print centerOfMass
-    win32api.SetCursorPos(centerOfMass)
+    #win32api.SetCursorPos(centerOfMass)
     #cv2.imshow("preview", framegray)
     cv2.imshow("output",newFrame)
     print len(contours)
