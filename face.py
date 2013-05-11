@@ -8,8 +8,8 @@ def detect_faces(image):
     faces = []
     cascade = cv2.CascadeClassifier(HAAR_CASCADE_PATH)
     detected = cascade.detectMultiScale(image, 1.2, 2, cv2.CASCADE_DO_CANNY_PRUNING, (100,100))
-    print type(detected)
-    print detected
+    #print type(detected)
+    #print detected
     #detected = cv2.CascadeClassifier.detectMultiScale(image, 1.2, 2, cv2.CASCADE_DO_CANNY_PRUNING, (100,100))
     if type(detected) is numpy.ndarray:
         for (x,y,w,h)in detected:
@@ -35,13 +35,14 @@ while returnValue:
     framegray = cv2.cvtColor(image ,cv2.COLOR_BGR2GRAY)
     # Only run the Detection algorithm every 5 frames to improve performance
     
-    if i%5==0:
-        faces = detect_faces(image)
+    #if i%5==0:
+    faces = detect_faces(image)
         #print 'huh?'
 
 
     for (x,y,w,h) in faces:                     
-        cv2.rectangle(framegray, (x,y), (x+w,y+h), 255)   
+        cv2.rectangle(framegray, (x,y), (x+w,y+h), 255)  
+        print 'detected' 
     #cv2.rectangle(framegray, (320,158), (320+124,158+124), 255)
     #huh 
     
