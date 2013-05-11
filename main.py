@@ -56,7 +56,7 @@ while rval:
     #print win32con
     #print centerOfMass
     #win32api.SetCursorPos(centerOfMass)
-    #cv2.imshow("preview", framegray)
+    cv2.imshow("preview", framegray)
     cv2.imshow("output",newFrame)
     print len(contours)
     #cv2.findContours()
