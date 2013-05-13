@@ -28,6 +28,7 @@ class FaceDetector:
 if __name__ == '__main__':
     capture = cv2.VideoCapture(0)
     detector = FaceDetector(0)
+    ft = None
     faces = []
     face_detected = False
 
@@ -36,7 +37,7 @@ if __name__ == '__main__':
     else:
         returnValue = False;
 
-    bb, new_bb = (0,0,0,0),(0,0,0,0)
+    bb, new_bb, last_bb = (0,0,0,0),(0,0,0,0),(0,0,0,0)
     last_image = image
     while returnValue:
         framegray = cv2.cvtColor(image ,cv2.COLOR_BGR2GRAY)
@@ -44,17 +45,23 @@ if __name__ == '__main__':
         faces = detector.detect_faces(image)
 
         if len(faces) > 0:
-            face_detected = True
             for (x,y,w,h) in faces:
                 bb = (x,y,w,h) 
+                last_bb = (x,y,w,h)
+                if not face_detected:
+                    ft = face2.FaceTracker()
+                    face_detected = True
                 break
         else:
             bb = new_bb
 
         if face_detected:
-            new_bb = face2.camshift_tracking(image, last_image, bb)
+            new_bb = ft.camshift_tracking(image, last_image, bb)
             x, y, w, h = new_bb
-            cv2.rectangle(framegray, (x,y), (x+w,y+h), 255)  
+            if w/1.75 > h:
+                face_detected = False
+            else:
+                cv2.rectangle(framegray, (x,y), (x+w,y+h), 255)  
         
         cv2.imshow("test", framegray)
         last_image = image
