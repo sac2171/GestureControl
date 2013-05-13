@@ -3,13 +3,24 @@ import cv2.cv as cv
 import numpy as np
 
 class FaceTracker:
-    def __init__(self, minHSV, maxHSV):
-        self.min_hsv = minHSV
-        self.max_hsv = maxHSV
+    def __init__(self, image, bb):
+        hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+        (x,y,w,h) = bb
+        boxed_image = hsv[x:x+w,y:y+h]
+        maxH = -1
+        minH = 181
+        for row in boxed_image:
+            for pixel in row:
+                if pixel[0] > maxH:
+                    maxH = pixel[0]
+                elif pixel[0] < minH:
+                    minH = pixel[0]
+        self.min_hsv = (minH, 30, 0)
+        self.max_hsv = (maxH, 140, 240)
 
     def camshift_tracking(self, img1, img2, bb):
         hsv = cv2.cvtColor(img1, cv2.COLOR_BGR2HSV)
-        mask = cv2.inRange(hsv, np.array((0,60,32)), np.array((180,255,255)))
+        mask = cv2.inRange(hsv, np.array(self.min_hsv), np.array(self.max_hsv))
         x0, y0, w, h = bb
         x1 = x0 + w -1
         y1 = y0 + h -1
@@ -52,7 +63,7 @@ def face_track():
 
         #draw bounding box on img1
         #x, y, w, h = bb
-        #cv2.rectangle(img1, (x,y), (x+w,y+h), 255)  
+        #cv2.rectangle(img1, (x,y), (x+w,y+h), 255)
         mask = cv2.inRange(hsv, np.array((0,60,32)), np.array((180,255,255)))
 
         #cv2.imshow("hsv", hsv)

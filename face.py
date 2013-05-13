@@ -49,7 +49,7 @@ if __name__ == '__main__':
                 bb = (x,y,w,h) 
                 last_bb = (x,y,w,h)
                 if not face_detected:
-                    ft = face2.FaceTracker()
+                    ft = face2.FaceTracker(image, bb)
                     face_detected = True
                 break
         else:
@@ -58,10 +58,7 @@ if __name__ == '__main__':
         if face_detected:
             new_bb = ft.camshift_tracking(image, last_image, bb)
             x, y, w, h = new_bb
-            if w/1.75 > h:
-                face_detected = False
-            else:
-                cv2.rectangle(framegray, (x,y), (x+w,y+h), 255)  
+            cv2.rectangle(framegray, (x,y), (x+w,y+h), 255)  
         
         cv2.imshow("test", framegray)
         last_image = image
