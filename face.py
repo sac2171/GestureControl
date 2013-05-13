@@ -41,6 +41,7 @@ if __name__ == '__main__':
     last_image = image
     while returnValue:
         framegray = cv2.cvtColor(image ,cv2.COLOR_BGR2GRAY)
+        #framegray = cv2.blur(framegray, (8, 8))
         
         faces = detector.detect_faces(image)
 
