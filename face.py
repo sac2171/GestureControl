@@ -33,7 +33,7 @@ if __name__ == '__main__':
         returnValue, image = capture.read()
     else:
         returnValue = False;
-    i = 0
+
     while returnValue:
         framegray = cv2.cvtColor(image ,cv2.COLOR_BGR2GRAY)
         
@@ -45,6 +45,3 @@ if __name__ == '__main__':
         
         cv2.imshow("test", framegray)
         returnValue, image = capture.read()
-        i += 1
-        if i == 150:
-            break
