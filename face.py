@@ -63,3 +63,6 @@ if __name__ == '__main__':
         cv2.imshow("test", framegray)
         last_image = image
         returnValue, image = capture.read()
+        key = cv2.waitKey(20)
+        if key == 27:
+            break
