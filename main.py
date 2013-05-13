@@ -1,9 +1,10 @@
 import cv2
 import numpy as np
 import utility
-#import win32api, win32con
+import face
+import sys
 
-
+set_mouse_position = lambda x: x
 vc = cv2.VideoCapture(0)
 
 height = 480
@@ -18,21 +19,31 @@ lowS = 30
 lowV = 0
 
 iterations = 0
+x_mid, y_mid = 0, 0
+if sys.platform == 'win32':
+    import win32api
+    x_mid = win32api.GetSystemMetrics(0) / 2
+    y_mid = win32api.GetSystemMetrics(1) / 2
+    set_mouse_position = win32api.SetCursorPosition
+elif sys.platform == 'darwin':
+    import Quartz.CoreGraphics, Quartz
+    main_monitor = Quartz.CGDisplayBounds(Quartz.CGMainDisplayID())
+    x_mid = main_monitor.size.width / 2
+    y_mid = main_monitor.size.height / 2
+    set_mouse_position = Quartz.CoreGraphics.CGWarpMouseCursorPosition
 
 if vc.isOpened(): # try to get the first frame
     rval, frame = vc.read()
 else:
     rval = False
 
-cascade = cv2.CascadeClassifier('lbpcascade_frontalface.xml')
+face_detector = face.FaceDetector(0)
 while rval:
-    iterations = iterations +1
-    print iterations
-    rectangles = cascade.detectMultiScale(frame)
+    faces = face_detector.detect_faces(frame)
     newHSV = np.zeros((height,width),np.uint8)
     framegray = cv2.cvtColor(frame,cv2.COLOR_BGR2HSV)
     justSkin = cv2.inRange(framegray,(lowH,lowS,lowV),(H,S,V))
-    #ret,justSkin = cv2.threshold(justSkin, 0,255,0)
+
     h1, w1 = framegray.shape[:2]
     newFrame = np.zeros((h1,w1),np.uint8)
     justSkin = cv2.flip(justSkin,1)
@@ -44,22 +55,17 @@ while rval:
         if cnt_len > max:
             max = cnt_len
             max_index = x
-    print len(contours)
     cv2.drawContours(newFrame,contours[max_index],-1,255,-1)
-    if not len(rectangles) == 0:
-        rectangle = rectangles[0]
-        cv2.rectangle(newFrame, (rectangle[0], rectangle[1]), (rectangle[0]+rectangle[2], rectangle[1]+rectangle[3]), (255,0,0))
+    for face in faces:
+        x, y = face[0], face[1]
+        w, h = face[2], face[3]
+        cv2.rectangle(newFrame, (x, y), (x+w, y+h), 255)
+
     mu = cv2.moments(contours[max_index],False)
     centerOfMass = (int( mu['m10']/mu['m00']),int( mu['m01']/mu['m00']))
-    #mu.get_m10()
     cv2.circle(newFrame, centerOfMass, 2, (140,140,140), 1 );
-    #print win32con
-    #print centerOfMass
-    #win32api.SetCursorPos(centerOfMass)
     cv2.imshow("preview", framegray)
     cv2.imshow("output",newFrame)
-    print len(contours)
-    #cv2.findContours()
     rval, frame = vc.read()
     key = cv2.waitKey(20)
     if key == 32:
