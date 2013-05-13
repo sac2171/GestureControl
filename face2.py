@@ -52,5 +52,6 @@ def face_track():
         key = cv2.waitKey(20)
         if key == 27: # exit on ESC
             break
-        
-face_track()
+
+if __name__ == '__main__': 
+    face_track()
