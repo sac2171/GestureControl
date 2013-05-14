@@ -8,13 +8,26 @@ import win32api, win32con
 vc = cv2.VideoCapture(0)
 height = 480
 width = 640
-H = 187
-S = 140
-V = 238
+
+
+MAX_HSV = (166,91,139)
+MIN_HSV = (120,30,47)
+
+H = 166
+S = 91
+V = 139
 
 lowH = 120
 lowS = 30
-lowV = 0
+lowV = 47
+
+# H = 187
+# S = 140
+# V = 238
+# 
+# lowH = 120
+# lowS = 30
+# lowV = 0
 
 
 def trackChange(type):
@@ -68,16 +81,16 @@ while rval:
     cv2.createTrackbar("V", "output", V, 255, trackChange("V"))
     #newHSV = np.zeros((height,width),np.uint8)
     #framegray = cv2.cvtColor(frame,cv2.COLOR_RGB2GRAY)
-    framegray = cv2.cvtColor(frame,cv2.COLOR_RGB2HSV)
+    framegray = cv2.cvtColor(frame,cv2.COLOR_BGR2HSV)
     justSkin = cv2.inRange(framegray,(lowH,lowS,lowV),(H,S,V))
     #justSkin = cv2.inRange(framegray,lowH,H)
     #ret,justSkin = cv2.threshold(justSkin, 0,255,0)
     #h1, w1 = framegray.shape[:2]
     #newFrame = np.zeros((h1,w1),np.uint8)
-    justSkin = cv2.flip(justSkin,1)
+    #justSkin = cv2.flip(justSkin,1)
     #contours, hierarchy = cv2.findContours(justSkin,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
-    max = 0
-    max_index = 0
+    #max = 0
+    #max_index = 0
 #      for x in range(len(contours)):
 #          cnt_len = cv2.contourArea(contours[x])
 #          if cnt_len > max:
