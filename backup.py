@@ -66,12 +66,14 @@ while rval:
     cv2.createTrackbar("H", "output", H, 255, trackChange("H"))
     cv2.createTrackbar("S", "output", S, 255, trackChange("S"))
     cv2.createTrackbar("V", "output", V, 255, trackChange("V"))
-    newHSV = np.zeros((height,width),np.uint8)
-    framegray = cv2.cvtColor(frame,cv2.COLOR_BGR2HSV)
+    #newHSV = np.zeros((height,width),np.uint8)
+    #framegray = cv2.cvtColor(frame,cv2.COLOR_RGB2GRAY)
+    framegray = cv2.cvtColor(frame,cv2.COLOR_RGB2HSV)
     justSkin = cv2.inRange(framegray,(lowH,lowS,lowV),(H,S,V))
+    #justSkin = cv2.inRange(framegray,lowH,H)
     #ret,justSkin = cv2.threshold(justSkin, 0,255,0)
-    h1, w1 = framegray.shape[:2]
-    newFrame = np.zeros((h1,w1),np.uint8)
+    #h1, w1 = framegray.shape[:2]
+    #newFrame = np.zeros((h1,w1),np.uint8)
     justSkin = cv2.flip(justSkin,1)
     #contours, hierarchy = cv2.findContours(justSkin,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
     max = 0
@@ -96,9 +98,8 @@ while rval:
     #cv2.findContours()
     rval, frame = vc.read()
     key = cv2.waitKey(20)
-    if key == 32:
-        print "ScreenShot Taken"
-        cv2.imwrite(utility.rand_string()+".jpg",framegray )
     if key == 27: # exit on ESC
         break
+    #if key ==32:
+        #cv2.imwrite(utility.rand_string()+".jpg",justSkin )
     
