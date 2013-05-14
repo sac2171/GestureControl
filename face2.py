@@ -17,6 +17,7 @@ class FaceTracker:
                     minH = pixel[0]
         self.min_hsv = (minH, 30, 0)
         self.max_hsv = (maxH, 140, 240)
+        self.bb = bb
 
     def camshift_tracking(self, img1, img2, bb):
         hsv = cv2.cvtColor(img1, cv2.COLOR_BGR2HSV)
@@ -33,16 +34,23 @@ class FaceTracker:
         prob &= mask
         term_crit = ( cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 10, 1 )
         new_ellipse, track_window = cv2.CamShift(prob, bb, term_crit)
+        self.bb = track_window
         return track_window
 
-#    def my_mouse_callback(self, event, x, y, flags, param):
-#        if event == cv2.EVENT_LBUTTONDOWN:
-#            print 'hi'
-#        if event == cv2.EVENT_LBUTTONUP:
-#            print 'hi2'
-#        if event == cv2.EVENT_MOUSEMOVE:
-#            print 'hi3'
-        
+    def compare_trackers(self, other):
+        minX = min(self.bb[0], other.bb[0])
+        minY = min(self.bb[1], other.bb[1])
+        maxX = max(self.bb[0]+self.bb[2], other.bb[0]+other.bb[2])
+        maxY = max(self.bb[1]+self.bb[3], other.bb[1]+other.bb[3])
+        small_bb_area = min(self.bb[2]*self.bb[3], other.bb[2]*other.bb[3])
+        total_area = (maxX - minX)*(maxY-minY)
+        if small_bb_area < .7*total_area:
+            return False
+	return True
+
+    def check_tracker(self):
+        pass
+
 def face_track():
     cap = cv2.VideoCapture(0)
     if cap.isOpened():
