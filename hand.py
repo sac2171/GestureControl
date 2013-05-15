@@ -225,7 +225,7 @@ if __name__ == '__main__':
     else:
         rc = False
     
-    mog = Cv.BackgroundSubtractor()
+    #mog = Cv.BackgroundSubtractor()
     i = 0
     while rc:
         
