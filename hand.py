@@ -140,13 +140,13 @@ def defineHand(im, palm, handCircle,defects, contour, fingers):
     radius1 = (radius1 + old_radius)/2
     print str(radius1) + ' ' + str(radius2)
     
-    if( numFingers >=4 ):
+    if( numFingers >=4 or (numFingers == 3 and percentage >.75)):
         writeText(im, 'OpenHand')
-    elif( percentage >.7 and percentage <.8 ):
+    elif( percentage >.6 and percentage <.9):
         writeText(im, 'Fist')
-    elif( percentage >.4 and percentage <.53 ):
+    elif( percentage >.33 and percentage <.6 ):
         writeText(im, 'Click')
-    elif(  ratio >.4 and ratio<.53 ):
+    elif(  ratio >.33 and ratio<.6 ):
         writeText(im, 'Point')
     else:
         writeText(im, 'Unknown')
@@ -181,7 +181,7 @@ def getDefects(contour, old_im):
             if d > 1500 :
                 start = tuple(contour[s][0])
                 end = tuple(contour[e][0])
-                far = tuple(contour[f][0])                 
+                far = tuple(contour[f][0])
                 #cv2.circle(old_im,far,5,[255,255,255],-1)                    
                 #cv2.line(old_im, start, far, [255, 0, 0], 5) 
                 #cv2.line(old_im, far, end, [255, 0, 0], 5)                    
