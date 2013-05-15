@@ -1,22 +1,29 @@
 import cv2
 import cv2.cv as cv
 import numpy as np
+import itertools
 
 class FaceTracker:
     def __init__(self, image, bb):
         hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+        #rgb_i = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         (x,y,w,h) = bb
-        boxed_image = hsv[x:x+w,y:y+h]
-        maxH = -1
-        minH = 181
-        for row in boxed_image:
-            for pixel in row:
-                if pixel[0] > maxH:
-                    maxH = pixel[0]
-                elif pixel[0] < minH:
-                    minH = pixel[0]
-        self.min_hsv = (minH, 30, 0)
-        self.max_hsv = (maxH, 140, 240)
+        boxed_image = hsv[y:y+h,x:x+w]
+        #boxed_image = hsv[int(y+h/2):int(y+h),int(x+w/4):int(x+3*w/4)]
+        hsv = cv2.split(boxed_image)
+        #rgb_image = rgb_i[int(y+h/2):int(y+h),int(x+w/4):int(x+3*w/4)]
+        #rgb = cv2.split(rgb_image)
+        h = hsv[0]
+        s = hsv[1]
+        v = hsv[2]
+        #r = rgb[0]
+        #g = rgb[1]
+        #b = rgb[2]
+        print np.median(h), h.mean()
+        self.min_hsv = (int(np.median(h)-h.std()), int(np.median(s)-s.std()), int(np.median(v)-v.std()))
+        self.max_hsv = (int(np.median(h)+h.std()), int(np.median(s)+s.std()), int(np.median(v)+v.std()))
+        #self.min_rgb = (int(r.mean()-r.std()), int(g.mean()-g.std()), int(b.mean()-b.std()))
+        #self.max_rgb = (int(r.mean()+r.std()), int(g.mean()+g.std()), int(b.mean()+b.std()))
         self.bb = bb
 
     def camshift_tracking(self, img1, img2, bb):

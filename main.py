@@ -10,12 +10,12 @@ vc = cv2.VideoCapture(0)
 height = 480
 width = 640
 
-H = 187
-S = 140
-V = 240
+H = 160
+S = 100
+V = 120
 
-lowH = 120
-lowS = 30
+lowH = 0
+lowS = 0
 lowV = 0
 
 iterations = 0
@@ -55,15 +55,15 @@ while rval:
         if cnt_len > max:
             max = cnt_len
             max_index = x
-    cv2.drawContours(newFrame,contours[max_index],-1,255,-1)
+    #cv2.drawContours(newFrame,contours[max_index],-1,255,-1)
     for face in faces:
         x, y = face[0], face[1]
         w, h = face[2], face[3]
         cv2.rectangle(newFrame, (x, y), (x+w, y+h), 255)
 
-    mu = cv2.moments(contours[max_index],False)
-    centerOfMass = (int( mu['m10']/mu['m00']),int( mu['m01']/mu['m00']))
-    cv2.circle(newFrame, centerOfMass, 2, (140,140,140), 1 );
+    #mu = cv2.moments(contours[max_index],False)
+    #centerOfMass = (int( mu['m10']/mu['m00']),int( mu['m01']/mu['m00']))
+    #cv2.circle(newFrame, centerOfMass, 2, (140,140,140), 1 );
     #cv2.imshow("preview", framegray)
     #cv2.imshow("output",newFrame)
     rval, frame = vc.read()
