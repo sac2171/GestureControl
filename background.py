@@ -3,6 +3,7 @@ import numpy as np
  
 c = cv2.VideoCapture(0)
 _,f = c.read()
+f = cv2.flip(f, 1)
  
 avg1 = np.float32(f)
 avg2 = np.float32(f)
@@ -13,51 +14,53 @@ MIN_HSV = (138,25,48)
 Min = (30,30,30)
 Max = (255,255,255)
 MM = (225, 225,225) 
- 
+i = 0
 while(1):
     _ , f = c.read()
-    
+    i = i + 1
+    f = cv2.flip(f, 1)
 
-    #im = cv2.cvtColor(f,cv2.COLOR_BGR2HSV)
-    #filter_im = cv2.inRange(im ,MIN_HSV, MAX_HSV )
     
     
-    cv2.accumulateWeighted(f, avg1, 0.05)
-    #cv2.accumulateWeighted(f, avg2, 0.01)
+    cv2.accumulateWeighted(f, avg1, 0.5)
+    #if(i%1200):
+    #   avg2 = np.float32(f)
+    #cv2.accumulateWeighted(f, avg2, .1)
      
     res1 = cv2.convertScaleAbs(avg1)
     res2 = cv2.convertScaleAbs(avg2)
     
     of = f.copy()
-    #ret, res2 = cv2.invert(res2)
     
-    other_f = cv2.inRange(res2 ,(0,0,0), Min)
-    #other_f = res2
-    everything_the_same = cv2.subtract(f, res2)
+    catchUp = cv2.inRange(res2, (0,0,0), (60,60,60))
+    
+    res3 = res2.copy()
+    #of = cv2.multiply(of,1.03)
+    
+    of = cv2.subtract(of, res3)
     f = cv2.subtract(res2, f) 
        
-    #f = cv2.add(res1, f)
-    #f = cv2.subtract(other_f, f)
-    f_after = f.copy()
-    everything_the_same = cv2.inRange(everything_the_same, (0,0,0), Min)
-    cv2.bitwise_not(everything_the_same, everything_the_same )
     
-    #f = cv2.add(everything_the_same, f)
-    #everything_the_same = cv2.inRange(everything_the_same, (0,0,0), Min)
-    #everything_the_same = cv2.invert(everything_the_same)
+    
+    of = cv2.inRange(of, (0,0,0), (20,20,20))
+    cv2.bitwise_not(of, of)
+    
+    #of = cv2.erode(of,cv2.getStructuringElement(cv2.MORPH_RECT,(6, 6)))
+    #of = cv2.dilate(of,cv2.getStructuringElement(cv2.MORPH_RECT,(12, 12)))
+    
     f = cv2.inRange(f ,Min, Max)
-    #f = cv2.add(f, other_f)
     
-    f_after = cv2.add(f_after, res1)
-    #f_after = cv2.addWeighted()
     
-    #im = cv2.cvtColor(of,cv2.COLOR_BGR2HSV)
-    #filter_im = cv2.inRange(im ,MIN_HSV, MAX_HSV )
     
-    f = cv2.add(everything_the_same, f)
-    cv2.imshow('im2',everything_the_same)
+    
+    
+    #of = cv2.subtract(of, catchUp)
+    f = cv2.add(of, f)
+    
+    #f = cv2.subtract(f, catchUp)
+    cv2.imshow('im2',of)
     cv2.imshow('img',f)    
-    #cv2.imshow('avg1',other_f)
+    cv2.imshow('avg1',catchUp)
     #cv2.imshow('avg2',res2)
     k = cv2.waitKey(20)
  
