@@ -4,8 +4,8 @@ import face as Face
 
 
 #For use with is skin detector
-MAX_HSV = (177,179,139)
-MIN_HSV = (138,25,48)
+MAX_HSV = (192,179,139)
+MIN_HSV = (138,25,40)
 # MAX_HSV = (166,91,139)
 # MIN_HSV = (120,30,47)
 
@@ -142,12 +142,13 @@ def defineHand(im, palm, handCircle,defects, contour, fingers):
     
     if( numFingers >=4 or (numFingers == 3 and percentage >.75)):
         writeText(im, 'OpenHand')
+    elif(  ratio >.33 and ratio<.6 ):
+        writeText(im, 'Point')
     elif( percentage >.6 and percentage <.9):
         writeText(im, 'Fist')
     elif( percentage >.33 and percentage <.6 ):
         writeText(im, 'Click')
-    elif(  ratio >.33 and ratio<.6 ):
-        writeText(im, 'Point')
+
     else:
         writeText(im, 'Unknown')
     
