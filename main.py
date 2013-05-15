@@ -9,9 +9,59 @@ c = cv2.VideoCapture(0)
 #cam_height = c.get(cv2.CV_CAP_PROP_FRAME_HEIGHT)
 #cam_width = c.get(cv2.CV_CAP_PROP_FRAME_WIDTH )
 
-_,f = c.read()
-cam_height = f.shape[0]
-cam_width = f.shape[1]
+
+
+
+MAX_HSV = (166,91,139)
+MIN_HSV = (120,30,47)
+
+H = 166
+S = 91
+V = 139
+
+lowH = 120
+lowS = 30
+lowV = 47
+
+
+def trackChange(type):
+    if type =="H":
+        def trackChange(newVal):
+            global H
+            H = newVal
+        return trackChange
+    if type =="S":
+        def trackChange(newVal):
+            global S
+            S = newVal
+        return trackChange
+    if type =="V":
+        def trackChange(newVal):
+            global V
+            V = newVal
+        return trackChange
+
+def trackChangeL(type):
+    if type =="H":
+        def trackChange(newVal):
+            global lowH
+            lowH = newVal
+        return trackChange
+    if type =="S":
+        def trackChange(newVal):
+            global lowS
+            lowS = newVal
+        return trackChange
+    if type =="V":
+        def trackChange(newVal):
+            global lowV
+            lowV = newVal
+        return trackChange
+
+
+
+
+
 
 f = cv2.flip(f, 1)
  
@@ -85,16 +135,57 @@ def removeFaces(im, faces1, faces2, faces3):
         (x,y,w,h) = faces3[0]
         cv2.rectangle(im, (x,y), (x+w,y+h), 0, constants.CV_FILLED)
 
+
+if c.isOpened():
+    _,f = c.read()
+else:
+    _ = False
+
+iterations = 0 
+cam_height = f.shape[0]
+cam_width = f.shape[1]
+
+while rval and iterations < 150:
+    rval, frame = vc.read()
+    cv2.rectangle(frame, (600,200), (800,400), 255)
+    cv2.imshow("Training",frame)
+    iterations += 1
+
+
+hsv = cv2.cvtColor(frame,cv2.COLOR_BGR2HSV)
+boxed_image = hsv[200:399,600:799]
+hsv = cv2.split(boxed_image)
+h = hsv[0]
+s = hsv[1]
+v = hsv[2]
+min_hsv = (int(h.mean()-h.std()), int(s.mean()-s.std()), int(v.mean()-v.std()))
+max_hsv = (int(h.mean()+h.std()), int(s.mean()+s.std()), int(v.mean()+v.std()))
+H = max_hsv[0]
+S = max_hsv[1]
+V = max_hsv[2]
+lowH = min_hsv[0]
+lowS = min_hsv[1]
+lowV = min_hsv[2]
+
 ft = None
 face_detected = False
 
 bb = (0,0,0,0)
 last_image = f
-while(1):
-    
+while(1):    
     _ , f = c.read()
     i = i + 1    
     f = cv2.flip(f, 1)
+
+    cv2.createTrackbar("HL", "Training", lowH, 180, trackChangeL("H"))
+    cv2.createTrackbar("SL", "Training", lowS, 255, trackChangeL("S"))
+    cv2.createTrackbar("VL", "Training", lowV, 255, trackChangeL("V"))
+    cv2.createTrackbar("H", "Training", H, 180, trackChange("H"))
+    cv2.createTrackbar("S", "Training", S, 255, trackChange("S"))
+    cv2.createTrackbar("V", "Training", V, 255, trackChange("V"))
+    framegray = cv2.cvtColor(frame,cv2.COLOR_BGR2HSV)
+    trainer = cv2.inRange(framegray,(lowH,lowS,lowV),(H,S,V))
+
     original_f = f.copy()
     f  = background_removal(f)
     
@@ -160,6 +251,7 @@ while(1):
     cv2.imshow('Clean',clean)
     cv2.imshow('Back',f)
     cv2.imshow('Skin',justSkinFrame)
+    cv2.imshow('Training',trainer)
     k = cv2.waitKey(20)
     if k == 27:
         break
