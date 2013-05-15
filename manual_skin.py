@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 import utility
-import win32api, win32con
+#import win32api, win32con
 
 #cv2.namedWindow("preview")
 #cv2.namedWindow("output")
