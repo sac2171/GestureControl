@@ -146,6 +146,8 @@ def defineHand(im, palm, handCircle,defects, contour, fingers, cam_res):
     comp_res = Wrap.getResolution()
     x2 = float(x2)/cam_res[0] * comp_res[0]
     y2 = float(y2)/cam_res[1] * comp_res[1]
+    x2 = int(x2) * 2
+    y2 = int(y2) * 2 
     
     if( numFingers >=4 or (numFingers == 3 and percentage >.75)):
         writeText(im, 'OpenHand')
@@ -273,8 +275,9 @@ def processContours(contours, im ):
 if __name__ == '__main__':
     
     camera = cv2.VideoCapture(camera_number)
-    cam_height = camera.get(CV_CAP_PROP_FRAME_HEIGHT)
-    cam_width = camera.get(CV_CAP_PROP_FRAME_WIDTH)
+    
+
+    
     
     #Create detectors for each face type
     d1 = Face.FaceDetector(DETECTOR_TYPE_LPB_FRONT)
@@ -290,6 +293,9 @@ if __name__ == '__main__':
         #last_frame = orig_frame
     else:
         rc = False
+        
+    cam_height = orig_frame.shape[0]
+    cam_width = orig_frame.shape[1]
     
     #mog = cv2.BackgroundSubtractor()
     i = 0

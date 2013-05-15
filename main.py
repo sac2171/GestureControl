@@ -7,10 +7,13 @@ import face as Face
 import hand as Hand
  
 c = cv2.VideoCapture(0)
-cam_height = camera.get(CV_CAP_PROP_FRAME_HEIGHT)
-cam_width = camera.get(CV_CAP_PROP_FRAME_WIDTH)
+#cam_height = c.get(cv2.CV_CAP_PROP_FRAME_HEIGHT)
+#cam_width = c.get(cv2.CV_CAP_PROP_FRAME_WIDTH )
 
 _,f = c.read()
+cam_height = f.shape[0]
+cam_width = f.shape[1]
+
 f = cv2.flip(f, 1)
  
 avg1 = np.float32(f)
