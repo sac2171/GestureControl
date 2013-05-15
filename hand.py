@@ -110,7 +110,7 @@ def writeText3(im, str):
 
 old_radius = 0
 
-def defineHand(im, palm, handCircle,defects, contour, fingers):
+def defineHand(im, palm, handCircle,defects, contour, fingers, cam_res):
     (x1,y1),radius1 = palm
     (x2,y2),radius2 = handCircle
     
@@ -143,9 +143,9 @@ def defineHand(im, palm, handCircle,defects, contour, fingers):
     radius1 = (radius1 + old_radius)/2
     print str(radius1) + ' ' + str(radius2)
 
-    
-    x2 = int(x2)
-    y2 = int(y2)
+    comp_res = Wrap.getResolution()
+    x2 = float(x2)/cam_res[0] * comp_res[0]
+    y2 = float(y2)/cam_res[1] * comp_res[1]
     
     if( numFingers >=4 or (numFingers == 3 and percentage >.75)):
         writeText(im, 'OpenHand')
@@ -273,6 +273,8 @@ def processContours(contours, im ):
 if __name__ == '__main__':
     
     camera = cv2.VideoCapture(camera_number)
+    cam_height = camera.get(CV_CAP_PROP_FRAME_HEIGHT)
+    cam_width = camera.get(CV_CAP_PROP_FRAME_WIDTH)
     
     #Create detectors for each face type
     d1 = Face.FaceDetector(DETECTOR_TYPE_LPB_FRONT)
@@ -375,7 +377,7 @@ if __name__ == '__main__':
                     cv2.circle(old_im,center,radius,WHITE,2)
                     #writeText(old_im, str(radius))
                      
-                    defineHand(old_im, palm, handCircle, defects, contour, fingers)        
+                    defineHand(old_im, palm, handCircle, defects, contour, fingers (cam_width,cam_height))        
         
         #final = old_im
         #final = cv2.add(im, old_im)

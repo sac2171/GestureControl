@@ -3,8 +3,6 @@ import win32api, win32con
 
 
 def moveMouse( x, y):
-    x_mid = win32api.GetSystemMetrics(0) / 2
-    y_mid = win32api.GetSystemMetrics(1) / 2
     win32api.SetCursorPos((x,y))
     
 def click( x, y):
@@ -14,7 +12,11 @@ def click( x, y):
 def scrollMouse(x, y):
     win32api.mouse_event(win32con.MOUSEEVENTF_WHEEL, x , y, 1, 0)
 
-    
+def getResolution():
+    x_screen = win32api.GetSystemMetrics(0)
+    y_screen = win32api.GetSystemMetrics(1)
+    return x_screen, y_screen 
+
 #     elif sys.platform == 'darwin':
 #         import Quartz.CoreGraphics, Quartz
 #         main_monitor = Quartz.CGDisplayBounds(Quartz.CGMainDisplayID())

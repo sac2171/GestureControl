@@ -7,6 +7,9 @@ import face as Face
 import hand as Hand
  
 c = cv2.VideoCapture(0)
+cam_height = camera.get(CV_CAP_PROP_FRAME_HEIGHT)
+cam_width = camera.get(CV_CAP_PROP_FRAME_WIDTH)
+
 _,f = c.read()
 f = cv2.flip(f, 1)
  
@@ -121,7 +124,7 @@ while(1):
     if hand_model is not None:
         for hand in hand_model:
             (palm, handCircle, defects, contour, fingers) = hand
-            Hand.defineHand(clean, palm, handCircle, defects, contour, fingers)
+            Hand.defineHand(clean, palm, handCircle, defects, contour, fingers, (cam_width, cam_height))
     
 
     
