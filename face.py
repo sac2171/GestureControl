@@ -20,6 +20,7 @@ class FaceDetector:
         else:
             self.cascade_path = self.LBP_CASCADE_PATH
         self.cascade = cv2.CascadeClassifier(self.cascade_path)
+        
 
     def detect_faces(self, image):
         faces = []
@@ -28,6 +29,11 @@ class FaceDetector:
             for (x,y,w,h)in detected:
                 faces.append((x,y,w,h))
         return faces
+    
+    
+    
+    
+    
 
 if __name__ == '__main__':
     capture = cv2.VideoCapture(0)
