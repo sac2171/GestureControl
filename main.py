@@ -3,12 +3,10 @@ import numpy as np
 from hand import writeText
 import constants
 import face as Face
+import face2
 import hand as Hand
  
 c = cv2.VideoCapture(0)
-#cam_height = c.get(cv2.CV_CAP_PROP_FRAME_HEIGHT)
-#cam_width = c.get(cv2.CV_CAP_PROP_FRAME_WIDTH )
-
 
 
 
@@ -58,20 +56,6 @@ def trackChangeL(type):
             lowV = newVal
         return trackChange
 
-
-
-
-
-
-f = cv2.flip(f, 1)
- 
-avg1 = np.float32(f)
-avg2 = np.float32(f)
-
-i = 0
-
-messages = []
-faces = []
 
 def show(str):
     global messages
@@ -140,16 +124,31 @@ if c.isOpened():
     _,f = c.read()
 else:
     _ = False
+    
+f = cv2.flip(f, 1)
+ 
+avg1 = np.float32(f)
+avg2 = np.float32(f)
+
+i = 0
+
+messages = []
+faces = []
 
 iterations = 0 
 cam_height = f.shape[0]
 cam_width = f.shape[1]
 
-while rval and iterations < 150:
-    rval, frame = vc.read()
-    cv2.rectangle(frame, (600,200), (800,400), 255)
+while _ and iterations < 150:
+    _, frame = c.read()
+    frame = cv2.flip(frame, 1)
+    cv2.rectangle(frame, (int(cam_width*.43), int(cam_height*.43)), 
+                  (int(cam_width*.57),int(cam_height*.57)), 255)
     cv2.imshow("Training",frame)
     iterations += 1
+    k = cv2.waitKey(20)
+    if k == 27:
+        break
 
 
 hsv = cv2.cvtColor(frame,cv2.COLOR_BGR2HSV)
@@ -169,20 +168,20 @@ lowV = min_hsv[2]
 
 ft = None
 face_detected = False
-
+last_image = None
 bb = (0,0,0,0)
-last_image = f
 while(1):    
+    last_image = f
     _ , f = c.read()
     i = i + 1    
     f = cv2.flip(f, 1)
 
-    cv2.createTrackbar("HL", "Training", lowH, 180, trackChangeL("H"))
-    cv2.createTrackbar("SL", "Training", lowS, 255, trackChangeL("S"))
-    cv2.createTrackbar("VL", "Training", lowV, 255, trackChangeL("V"))
-    cv2.createTrackbar("H", "Training", H, 180, trackChange("H"))
-    cv2.createTrackbar("S", "Training", S, 255, trackChange("S"))
-    cv2.createTrackbar("V", "Training", V, 255, trackChange("V"))
+    cv2.createTrackbar("HL", "t2", lowH, 180, trackChangeL("H"))
+    cv2.createTrackbar("SL", "t2", lowS, 255, trackChangeL("S"))
+    cv2.createTrackbar("VL", "t2", lowV, 255, trackChangeL("V"))
+    cv2.createTrackbar("H", "t2", H, 180, trackChange("H"))
+    cv2.createTrackbar("S", "t2", S, 255, trackChange("S"))
+    cv2.createTrackbar("V", "t2", V, 255, trackChange("V"))
     framegray = cv2.cvtColor(frame,cv2.COLOR_BGR2HSV)
     trainer = cv2.inRange(framegray,(lowH,lowS,lowV),(H,S,V))
 
@@ -195,15 +194,15 @@ while(1):
     # Get a list of faces from each detector
     f1, f2, f3 = detectFaces(original_f, d1, d2, d3)
     faces = f1,f2,f3
-    if len(faces) > 0:
-        new_ft = face2.FaceTracker(f, faces[0])
-        x,y,w,h = faces[0]
+    if len(f1) > 0:
+        new_ft = face2.FaceTracker(original_f, f1[0])
+        x,y,w,h = f1[0]
         if not face_detected:
             face_detected = True
             ft = new_ft
             cv2.rectangle(f, (x,y), (x+w, y+h), 255)
         else:
-            bb = ft.track(f)
+            bb = ft.track(original_f)
             #check to make sure this doesn't suck?
             if not new_ft.compare_trackers(ft):
                 ft = new_ft
@@ -213,7 +212,7 @@ while(1):
             #make sure that this face is not a different face
             #if so, track this one instead
     elif face_detected:
-        bb = ft.track(f)
+        bb = ft.track(original_f)
         #check to make sure this doesn't suck?
         #if not ft.check_tracker(image):
         #    face_detected = False
@@ -251,7 +250,7 @@ while(1):
     cv2.imshow('Clean',clean)
     cv2.imshow('Back',f)
     cv2.imshow('Skin',justSkinFrame)
-    cv2.imshow('Training',trainer)
+    cv2.imshow('t2',trainer)
     k = cv2.waitKey(20)
     if k == 27:
         break

@@ -36,7 +36,7 @@ blur_constant = 4
 
 SMOOTH_VARIABLES = (8,8)
 ERODE = 3
-DILATE = 8
+DILATE = 7
 
 #wrap = OSWrapper()
 
@@ -161,7 +161,7 @@ def defineHand(im, palm, handCircle,defects, contour, fingers, cam_res):
         writeText(im, 'Fist')
     elif( percentage >.33 and percentage <.6 ):
         writeText(im, 'Click')
-        Wrap.click(x2,y2)
+        #Wrap.click(x2,y2)
     else:
         writeText(im, 'Unknown')
     
