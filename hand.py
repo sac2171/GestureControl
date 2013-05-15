@@ -144,10 +144,12 @@ def defineHand(im, palm, handCircle,defects, contour, fingers, cam_res):
     print str(radius1) + ' ' + str(radius2)
 
     comp_res = Wrap.getResolution()
-    x2 = float(x2)/cam_res[0] * comp_res[0]
-    y2 = float(y2)/cam_res[1] * comp_res[1]
-    x2 = int(x2) * 2
-    y2 = int(y2) * 2 
+    x_tmp = (x2 - float(cam_res[0])/2)*float(comp_res[0])/cam_res[0]
+    y_tmp = (y2 - float(cam_res[1])/2)*float(comp_res[1])/cam_res[1]
+    x2 = float(comp_res[0])/2 + 2*x_tmp
+    y2 = float(comp_res[1])/2 + 2*y_tmp
+    x2 = int(x2)
+    y2 = int(y2) 
     
     if( numFingers >=4 or (numFingers == 3 and percentage >.75)):
         writeText(im, 'OpenHand')
