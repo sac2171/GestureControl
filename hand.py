@@ -149,6 +149,7 @@ def defineHand(im, palm, handCircle,defects, contour, fingers):
     
     if( numFingers >=4 or (numFingers == 3 and percentage >.75)):
         writeText(im, 'OpenHand')
+        Wrap.scrollMouse(x2,y2)
     elif(  ratio >.33 and ratio<.6 ):
         writeText(im, 'Point')
         Wrap.moveMouse(x2,y2)
@@ -156,7 +157,7 @@ def defineHand(im, palm, handCircle,defects, contour, fingers):
         writeText(im, 'Fist')
     elif( percentage >.33 and percentage <.6 ):
         writeText(im, 'Click')
-        #add click
+        Wrap.click(x2,y2)
     else:
         writeText(im, 'Unknown')
     

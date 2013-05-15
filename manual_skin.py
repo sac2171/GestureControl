@@ -70,13 +70,35 @@ if vc.isOpened(): # try to get the first frame
 else:
     rval = False
 
+iterations = 0
+while rval and iterations < 150:
+    rval, frame = vc.read()
+    cv2.rectangle(frame, (600,200), (800,400), 255)
+    cv2.imshow("sup",frame)
+    iterations += 1
+
+hsv = cv2.cvtColor(frame,cv2.COLOR_BGR2HSV)
+boxed_image = hsv[200:399,600:799]
+hsv = cv2.split(boxed_image)
+h = hsv[0]
+s = hsv[1]
+v = hsv[2]
+min_hsv = (int(h.mean()-h.std()), int(s.mean()-s.std()), int(v.mean()-v.std()))
+max_hsv = (int(h.mean()+h.std()), int(s.mean()+s.std()), int(v.mean()+v.std()))
+H = max_hsv[0]
+S = max_hsv[1]
+V = max_hsv[2]
+lowH = min_hsv[0]
+lowS = min_hsv[1]
+lowV = min_hsv[2]
+
 while rval:
     iter = iter+1
 #     print iter
-    cv2.createTrackbar("HL", "output", lowH, 255, trackChangeL("H"))
+    cv2.createTrackbar("HL", "output", lowH, 180, trackChangeL("H"))
     cv2.createTrackbar("SL", "output", lowS, 255, trackChangeL("S"))
     cv2.createTrackbar("VL", "output", lowV, 255, trackChangeL("V"))
-    cv2.createTrackbar("H", "output", H, 255, trackChange("H"))
+    cv2.createTrackbar("H", "output", H, 180, trackChange("H"))
     cv2.createTrackbar("S", "output", S, 255, trackChange("S"))
     cv2.createTrackbar("V", "output", V, 255, trackChange("V"))
     #newHSV = np.zeros((height,width),np.uint8)
