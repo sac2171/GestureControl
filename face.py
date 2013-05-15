@@ -7,15 +7,12 @@ class FaceDetector:
     HAAR_CASCADE_PATH_DEF = "haarcascade_frontalface_default.xml"
     HAAR_CASCADE_PATH_ALT = "haarcascades_haarcascade_frontalface_alt.xml"
     LBP_CASCADE_PATH = "lbpcascade_frontalface.xml"
-    HAND_CASCADE_PATH = "Hand.Cascade.1.xml"
 
     def __init__(self, type):
         if type == 1:
             self.cascade_path = self.HAAR_CASCADE_PATH_DEF
         elif type == 2:
             self.cascade_path = self.HAAR_CASCADE_PATH_ALT
-        elif type == 3:
-            self.cascade_path = self.HAND_CASCADE_PATH
         else:
             self.cascade_path = self.LBP_CASCADE_PATH
         self.cascade = cv2.CascadeClassifier(self.cascade_path)
