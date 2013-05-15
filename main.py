@@ -1,4 +1,3 @@
-
 import cv2
 import numpy as np
 from hand import writeText
@@ -83,6 +82,11 @@ def removeFaces(im, faces1, faces2, faces3):
         (x,y,w,h) = faces3[0]
         cv2.rectangle(im, (x,y), (x+w,y+h), 0, constants.CV_FILLED)
 
+ft = None
+face_detected = False
+
+bb = (0,0,0,0)
+last_image = f
 while(1):
     
     _ , f = c.read()
@@ -96,7 +100,34 @@ while(1):
     
     # Get a list of faces from each detector
     f1, f2, f3 = detectFaces(original_f, d1, d2, d3)
-    
+    faces = f1,f2,f3
+    if len(faces) > 0:
+        new_ft = face2.FaceTracker(f, faces[0])
+        x,y,w,h = faces[0]
+        if not face_detected:
+            face_detected = True
+            ft = new_ft
+            cv2.rectangle(f, (x,y), (x+w, y+h), 255)
+        else:
+            bb = ft.track(f)
+            #check to make sure this doesn't suck?
+            if not new_ft.compare_trackers(ft):
+                ft = new_ft
+            elif bb is not None:
+                x,y,w,h = bb
+            cv2.rectangle(f, (x,y), (x+w, y+h), 255)
+            #make sure that this face is not a different face
+            #if so, track this one instead
+    elif face_detected:
+        bb = ft.track(f)
+        #check to make sure this doesn't suck?
+        #if not ft.check_tracker(image):
+        #    face_detected = False
+        #else:
+        if bb is not None:
+            x,y,w,h = bb
+            cv2.rectangle(f, (x,y), (x+w, y+h), 255)
+
     #removes faces, modifies image
     removeFaces(f, f1,f2,f3)
     
