@@ -123,7 +123,7 @@ while(1):
             (palm, handCircle, defects, contour, fingers) = hand
             Hand.defineHand(clean, palm, handCircle, defects, contour, fingers)
     
-    
+
     
     writeText(f, str(i))
     #cv2.imshow('hand_model',hand_model)
