@@ -1,6 +1,7 @@
 import cv2
 import numpy as np 
 import face as Face
+import OSWrapper as Wrap
 
 
 #For use with is skin detector
@@ -36,6 +37,8 @@ blur_constant = 4
 SMOOTH_VARIABLES = (8,8)
 ERODE = 3
 DILATE = 8
+
+#wrap = OSWrapper()
 
 def filter_skin(im):
     #im = cv2.cv2tColor(im,cv2.COLOR_RGB2HSV)
@@ -139,16 +142,21 @@ def defineHand(im, palm, handCircle,defects, contour, fingers):
     global old_radius
     radius1 = (radius1 + old_radius)/2
     print str(radius1) + ' ' + str(radius2)
+
+    
+    x2 = int(x2)
+    y2 = int(y2)
     
     if( numFingers >=4 or (numFingers == 3 and percentage >.75)):
         writeText(im, 'OpenHand')
     elif(  ratio >.33 and ratio<.6 ):
         writeText(im, 'Point')
+        Wrap.moveMouse(x2,y2)
     elif( percentage >.6 and percentage <.9):
         writeText(im, 'Fist')
     elif( percentage >.33 and percentage <.6 ):
         writeText(im, 'Click')
-
+        #add click
     else:
         writeText(im, 'Unknown')
     
