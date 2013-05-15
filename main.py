@@ -37,12 +37,30 @@ if vc.isOpened(): # try to get the first frame
 else:
     rval = False
 
+while rval and iterations < 100:
+    rval, frame = vc.read()
+    cv2.rectangle(frame, (300,200), (500,400), 255)
+    cv2.imshow("sup",frame)
+    iterations += 1
+
+hsv = cv2.cvtColor(frame,cv2.COLOR_BGR2HSV)
+boxed_image = hsv[200:399,300:499]
+hsv = cv2.split(boxed_image)
+h = hsv[0]
+s = hsv[1]
+v = hsv[2]
+min_hsv = (int(h.mean()-h.std()), int(s.mean()-s.std()), int(v.mean()-v.std()))
+max_hsv = (int(h.mean()+h.std()), int(s.mean()+s.std()), int(v.mean()+v.std()))
+print min_hsv, max_hsv
+lowH, lowS, lowV = min_hsv
+H,S,V = max_hsv
+
 face_detector = face.FaceDetector(0)
 while rval:
     faces = face_detector.detect_faces(frame)
     newHSV = np.zeros((height,width),np.uint8)
     framegray = cv2.cvtColor(frame,cv2.COLOR_BGR2HSV)
-    justSkin = cv2.inRange(framegray,(lowH,lowS,lowV),(H,S,V))
+    justSkin = cv2.inRange(framegray,min_hsv,max_hsv)
     cv2.imshow("skin", justSkin)
     h1, w1 = framegray.shape[:2]
     newFrame = np.zeros((h1,w1),np.uint8)
