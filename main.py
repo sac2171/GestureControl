@@ -30,8 +30,7 @@ def writeText(im, str):
     i = 50
     for message in messages:
         cv2.putText(im, str, (i,i), cv2.FONT_HERSHEY_SIMPLEX, 1.0, WHITE)
-        i = i + 50
-        
+        i = i + 50        
         
 ### Background Removal
 
@@ -54,9 +53,7 @@ def background_removal(f):
     f = cv2.add(of, f)
     return f 
 
-
 ### Face Detection
-
 
 def createFaceDetectors():
     d1 = Face.FaceDetector(constants.DETECTOR_TYPE_LPB_FRONT)
@@ -81,14 +78,10 @@ def removeFaces(im, faces1, faces2, faces3):
         (x,y,w,h) = faces2[0]
         cv2.rectangle(im, (x,y), (x+w,y+h), 0, constants.CV_FILLED)
        
-      
     if len(faces3) > 0:
         bb3  = faces3[0]
         (x,y,w,h) = faces3[0]
         cv2.rectangle(im, (x,y), (x+w,y+h), 0, constants.CV_FILLED)
-
-
-
 
 while(1):
     

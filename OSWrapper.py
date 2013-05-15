@@ -1,13 +1,11 @@
 import sys
 import win32api, win32con
 
-
 def moveMouse( x, y):
     win32api.SetCursorPos((x,y))
     
 def click( x, y):
     win32api.mouse_event(win32con.MOUSEEVENTF_LEFTDOWN, x, y, 1, 0 )
-        
 
 def scrollMouse(x, y):
     win32api.mouse_event(win32con.MOUSEEVENTF_WHEEL, x , y, 1, 0)
