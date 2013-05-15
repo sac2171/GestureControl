@@ -49,10 +49,10 @@ def filter_skin(im):
 def clarify_image(im):
     im = Cv.erode(im,Cv.getStructuringElement(Cv.MORPH_ELLIPSE,(ERODE, ERODE)))
     #im = Cv.erode(im,Cv.getStructuringElement(Cv.MORPH_ELLIPSE,(ERODE, ERODE)))
+    #im = Cv.dilate(im,Cv.getStructuringElement(Cv.MORPH_RECT,(DILATE, DILATE)))
+    #im = Cv.dilate(im,Cv.getStructuringElement(Cv.MORPH_RECT,(DILATE, DILATE)))
     im = Cv.dilate(im,Cv.getStructuringElement(Cv.MORPH_RECT,(DILATE, DILATE)))
-    im = Cv.dilate(im,Cv.getStructuringElement(Cv.MORPH_RECT,(DILATE, DILATE)))
-    im = Cv.dilate(im,Cv.getStructuringElement(Cv.MORPH_RECT,(DILATE, DILATE)))
-    im = Cv.blur(im, (9,9))  
+    #im = Cv.blur(im, (9,9))  
     #im = Cv.dilate(im,Cv.getStructuringElement(Cv.MORPH_ELLIPSE,(DILATE, DILATE)))
     return im
 
@@ -164,7 +164,7 @@ def drawPalm(contour, defects, im):
     if defects is not None:         
         for i in range(defects.shape[0]):
             s,e,f,d = defects[i,0]
-            if d > 500 :
+            if d > 2000 :
                 listTwo =[]
                 point = tuple(countour[f][0])
                 listTwo.append(point)
@@ -246,7 +246,7 @@ if __name__ == '__main__':
         
         old_im = im.copy()
         
-        if 1:
+        if 0:
             if countours is not None:
                 for countour in countours:
                        
