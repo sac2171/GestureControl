@@ -82,6 +82,7 @@ while rval:
     #newHSV = np.zeros((height,width),np.uint8)
     #framegray = cv2.cvtColor(frame,cv2.COLOR_RGB2GRAY)
     framegray = cv2.cvtColor(frame,cv2.COLOR_BGR2HSV)
+    #framegray = cv2.cvtColor(frame,cv2.COLOR_BGR2RGB)
     justSkin = cv2.inRange(framegray,(lowH,lowS,lowV),(H,S,V))
     #justSkin = cv2.inRange(framegray,lowH,H)
     #ret,justSkin = cv2.threshold(justSkin, 0,255,0)

@@ -58,7 +58,7 @@ def clarify_image(im):
 
 def getLargestCountour(im):
     #Get all contours
-    contours, hierarchy = Cv.findContours(im,Cv.RETR_LIST,Cv.CHAIN_APPROX_NONE)
+    contours, hierarchy = Cv.findContours(im,Cv.RETR_LIST,Cv.CHAIN_APPROX_NONE)    
     
     
     smallContours = []
@@ -72,6 +72,9 @@ def getLargestCountour(im):
     if len(contours) != 0:
         #length = Cv.arcLength(contours,False)
         #contours = Cv.approxPolyDP(contours,0.1*length,True)
+        for cnt in contours:
+            curve = Cv.arcLength(cnt,True)
+            cnt = Cv.approxPolyDP(cnt,curve,True)
         return contours
     else: 
         0 
@@ -99,16 +102,22 @@ def writeText(im, str):
 def writeText2(im, str):
     Cv.putText(im, str, (50,80), Cv.FONT_HERSHEY_SIMPLEX, 1.0, WHITE)
 
-def defineHand(im, palm, handCircle):
+
+old_radius = 0
+
+def defineHand(im, palm, handCircle,defects, contour):
     (x1,y1),radius1 = palm
     (x2,y2),radius2 = handCircle
     
     writeText2(im, str(radius1) + ' ' + str(radius2))
     print str(radius1) + ' ' + str(radius2)
-    if radius1*2 < radius2:
+    global old_radius
+    radius1 = (radius1 + old_radius)/2
+    if radius1*1.5 < radius2:
         writeText(im, 'OpenHand')
     else:
         writeText(im, 'Fist')
+    old_radius = radius1
 #     if(hand.isFist):
 #         writeText('Fist')
 #     elif(hand.isPoint):
@@ -151,18 +160,14 @@ def getDefects(countour, old_im):
 
 def drawPalm(contour, defects, im):
     farPoints=[]
-    #np.ndarray 
-    
+    #np.ndarray     
     if defects is not None:         
         for i in range(defects.shape[0]):
             s,e,f,d = defects[i,0]
-            if d > 2000 :
+            if d > 500 :
                 listTwo =[]
                 point = tuple(countour[f][0])
-                #point = tuple(countour[e][0])
-                #point = tuple(countour[s][0])
                 listTwo.append(point)
-                #listTwo.append(point2)
                 far =np.array(listTwo)
                 farPoints.append(far)
     array= np.array(farPoints)
@@ -270,7 +275,7 @@ if __name__ == '__main__':
                     Cv.circle(old_im,center,radius,WHITE,2)
                     #writeText(old_im, str(radius))
                      
-                    defineHand(old_im, palm, handCircle)        
+                    defineHand(old_im, palm, handCircle, defects, countour)        
         
         final = old_im
         #final = Cv.add(im, old_im)
