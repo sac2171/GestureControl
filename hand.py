@@ -112,7 +112,18 @@ def defineHand(im, palm, handCircle,defects, contour, fingers):
     (x2,y2),radius2 = handCircle
     
     
-    #writeText2(im, str(radius1) + ' ' + str(radius2))
+    #writeText2(im, st    r(radius1) + ' ' + str(radius2))
+    
+    x,y,w,h = cv2.boundingRect(contour)
+    cv2.rectangle(im,(x,y),(x+w,y+h),WHITE,1)
+    
+    ratio = w/float(h)
+    bb = im[y:y+h-1, x:x+w-1]
+    whiteCount = cv2.countNonZero(bb)
+    Area = w * h
+    percentage = whiteCount/float(Area)
+    
+    
     filtered = filter(lambda a:a<90, fingers)
     numFingers = len(filtered)
     d = 0
@@ -122,16 +133,21 @@ def defineHand(im, palm, handCircle,defects, contour, fingers):
             if d > 2000 :
                 d = d + 1
     
-    writeText2(im, str(d) + ' ' + str(len(contour)) + ' ' +  str(numFingers))
+    #writeText2(im, str(ratio) + ' ' +str(percentage)  + ' ' +  str(numFingers))
+    writeText2(im,  str(numFingers))
     
     global old_radius
     radius1 = (radius1 + old_radius)/2
     print str(radius1) + ' ' + str(radius2)
     
-    if( numFingers <3 ):
-        writeText(im, 'Fist')
-    elif( numFingers >= 3):
+    if( numFingers >=4 ):
         writeText(im, 'OpenHand')
+    elif( percentage >.7 and percentage <.8 ):
+        writeText(im, 'Fist')
+    elif( percentage >.4 and percentage <.53 ):
+        writeText(im, 'Click')
+    elif(  ratio >.4 and ratio<.53 ):
+        writeText(im, 'Point')
     else:
         writeText(im, 'Unknown')
     

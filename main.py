@@ -26,7 +26,7 @@ def show(str):
 def writeText(im, str):
     i = 50
     for message in messages:
-        cv2.putText(im, str, (i,i), cv2.FONT_HERSHEY_SIMPLEX, 1.0, WHITE)
+        cv2.putText(im, str, (i,i), cv2.FONT_HERSHEY_SIMPLEX, 1.0, constants.WHITE)
         i = i + 50
         
         
