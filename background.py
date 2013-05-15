@@ -1,21 +1,29 @@
 import cv2
-if __name__ == '__main__':
-    camera = cv2.VideoCapture(0)
-    numFrames = 0;
-    if camera.isOpened():
-        rc, orig_frame = camera.read()
-        #last_frame = orig_frame
-    else:
-        rc = False
-    while rc == True:
-        numFrames = numFrames + 1
-        
-        cv2.imshow('background', orig_frame)
-        
-        
-        rc, orig_frame = camera.read()
-        
-        orig_frame.
-        key = cv2.waitKey(20)    
-        if key == 27:
-            break
+import numpy as np
+ 
+c = cv2.VideoCapture(0)
+_,f = c.read()
+ 
+avg1 = np.float32(f)
+avg2 = np.float32(f)
+ 
+while(1):
+    _,f = c.read()
+     
+    cv2.accumulateWeighted(f,avg1,0.1)
+    cv2.accumulateWeighted(f,avg2,0.01)
+     
+    res1 = cv2.convertScaleAbs(avg1)
+    res2 = cv2.convertScaleAbs(avg2)
+ 
+    f = cv2.subtract(f, res1)
+    cv2.imshow('img',f)
+    cv2.imshow('avg1',res1)
+    cv2.imshow('avg2',res2)
+    k = cv2.waitKey(20)
+ 
+    if k == 27:
+        break
+ 
+cv2.destroyAllWindows()
+c.release()

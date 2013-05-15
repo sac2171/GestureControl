@@ -51,14 +51,14 @@ def clarify_image(im):
     #im = Cv.erode(im,Cv.getStructuringElement(Cv.MORPH_ELLIPSE,(ERODE, ERODE)))
     #im = Cv.dilate(im,Cv.getStructuringElement(Cv.MORPH_RECT,(DILATE, DILATE)))
     #im = Cv.dilate(im,Cv.getStructuringElement(Cv.MORPH_RECT,(DILATE, DILATE)))
-    im = Cv.dilate(im,Cv.getStructuringElement(Cv.MORPH_RECT,(DILATE, DILATE)))
+    #im = Cv.dilate(im,Cv.getStructuringElement(Cv.MORPH_RECT,(DILATE, DILATE)))
     #im = Cv.blur(im, (9,9))  
     #im = Cv.dilate(im,Cv.getStructuringElement(Cv.MORPH_ELLIPSE,(DILATE, DILATE)))
     return im
 
 def getLargestCountour(im):
     #Get all contours
-    contours, hierarchy = Cv.findContours(im,Cv.RETR_LIST,Cv.CHAIN_APPROX_NONE)    
+    contours, hierarchy = Cv.findContours(im,Cv.RETR_EXTERNAL, Cv.CHAIN_APPROX_SIMPLE)    
     
     
     smallContours = []
@@ -66,16 +66,22 @@ def getLargestCountour(im):
         area = Cv.contourArea(contours[index])
         if area < 4e3: smallContours.append(index)
         smallContours.sort(reverse=True)        
-    for index in smallContours: contours.pop(index)
+    for index in smallContours: 
+        contours.pop(index)
     
     
     if len(contours) != 0:
+        lengthOfContours = len(contours[0])
         #length = Cv.arcLength(contours,False)
         #contours = Cv.approxPolyDP(contours,0.1*length,True)
-        for cnt in contours:
-            curve = Cv.arcLength(cnt,True)
-            cnt = Cv.approxPolyDP(cnt,curve,True)
-        return contours
+        simpContours = [Cv.approxPolyDP(cnt,5, True) for cnt in contours]
+#         for cnt in contours:            
+#             cnt = contours[0] #should only find one contour
+#             curve = .01*Cv.arcLength(cnt,True)
+#             cnt = Cv.approxPolyDP(cnt,curve,True)
+        
+        Cv.drawContours(im, simpContours,-1,(64,255,85),-1)
+        return simpContours
     else: 
         0 
 
@@ -101,15 +107,21 @@ def writeText(im, str):
 
 def writeText2(im, str):
     Cv.putText(im, str, (50,80), Cv.FONT_HERSHEY_SIMPLEX, 1.0, WHITE)
-
+    
+def writeText3(im, str):
+    Cv.putText(im, str, (50,80), Cv.FONT_HERSHEY_SIMPLEX, 1.0, WHITE)
 
 old_radius = 0
 
-def defineHand(im, palm, handCircle,defects, contour):
+def defineHand(im, palm, handCircle,defects, contour, fingers):
     (x1,y1),radius1 = palm
     (x2,y2),radius2 = handCircle
     
-    writeText2(im, str(radius1) + ' ' + str(radius2))
+    
+    #writeText2(im, str(radius1) + ' ' + str(radius2))
+    filtered = filter(lambda a:a<90, fingers)
+    numFingers = len(filtered)
+    writeText2(im, str(len(defects)) + ' ' + str(len(contour)) + ' ' +  str(numFingers))
     print str(radius1) + ' ' + str(radius2)
     global old_radius
     radius1 = (radius1 + old_radius)/2
@@ -144,6 +156,7 @@ def drawHull(contours, old_im):
     return hull
         
 def getDefects(countour, old_im):
+    fingers = []
     hull = Cv.convexHull(countour,returnPoints = False)
     defects = Cv.convexityDefects(countour,hull)
     if defects is not None:         
@@ -156,7 +169,8 @@ def getDefects(countour, old_im):
                 Cv.circle(old_im,far,5,[255,255,255],-1)                    
                 Cv.line(old_im, start, far, [255, 0, 0], 5) 
                 Cv.line(old_im, far, end, [255, 0, 0], 5)
-    return defects
+                fingers.append(angle(far,start,end))
+    return defects, fingers
 
 def drawPalm(contour, defects, im):
     farPoints=[]
@@ -181,6 +195,14 @@ def drawPalm(contour, defects, im):
     else:
         return (0,0), -1
     
+def angle( cent, rect1, rect2):
+    v1 = (rect1[0] - cent[0], rect1[1] - cent[1])
+    v2 = (rect2[0] - cent[0], rect2[1] - cent[1])
+    dist = lambda a:np.sqrt(a[0] ** 2 + a[1] ** 2)
+    angle = np.arccos((sum(map(lambda a, b:a*b, v1, v2))) / (dist(v1) * dist(v2)))
+    angle = abs(np.rad2deg(angle))
+    return angle
+    
 def convertPoints(points):
     return points
 
@@ -203,46 +225,60 @@ if __name__ == '__main__':
     else:
         rc = False
     
+    mog = Cv.BackgroundSubtractor()
+    i = 0
     while rc:
         
         #Flip so that hand will move in correct direction
         im = Cv.flip(orig_frame, 1)
+        i = i + 1
+        #mog 
+
+        
+        final = mog.apply(im)
         #im = Cv.blur(blur_constant)
         
-        faces1 = d1.detect_faces(im)
-        faces2 = d2.detect_faces(im)
-        faces3 = d3.detect_faces(im)
+#         faces1 = d1.detect_faces(im)
+#         faces2 = d2.detect_faces(im)
+#         faces3 = d3.detect_faces(im)
+#         
+#         bb1 = EMPTY_BOUNDING_BOX
+#         bb2 = EMPTY_BOUNDING_BOX
+#         bb3 = EMPTY_BOUNDING_BOX        
+#         
+#         if len(faces1) > 0:
+#             bb1  = faces1[0]
+#             (x,y,w,h) = faces1[0]
+#             Cv.rectangle(im, (x,y), (x+w,y+h), 255, CV_FILLED)
+#             
+#         if len(faces2) > 0:
+#             bb2  = faces2[0]
+#             (x,y,w,h) = faces2[0]
+#             Cv.rectangle(im, (x,y), (x+w,y+h), 180, CV_FILLED)
+#             #region_of_interest = im[x:x+w, y,y+h]
+#             #hsv = Cv.cvtColor(region_of_interest, Cv.COLOR_BGR2HSV)
+#             #Cv.putText(hsv.__str__())  
+#          
+#         if len(faces3) > 0:
+#             bb3  = faces3[0]
+#             (x,y,w,h) = faces3[0]
+#             Cv.rectangle(im, (x,y), (x+w,y+h), 0, CV_FILLED)
         
-        bb1 = EMPTY_BOUNDING_BOX
-        bb2 = EMPTY_BOUNDING_BOX
-        bb3 = EMPTY_BOUNDING_BOX        
-        
-        if len(faces1) > 0:
-            bb1  = faces1[0]
-            (x,y,w,h) = faces1[0]
-            Cv.rectangle(im, (x,y), (x+w,y+h), 255, CV_FILLED)
-            
-        if len(faces2) > 0:
-            bb2  = faces2[0]
-            (x,y,w,h) = faces2[0]
-            Cv.rectangle(im, (x,y), (x+w,y+h), 180, CV_FILLED)
-            #region_of_interest = im[x:x+w, y,y+h]
-            #hsv = Cv.cvtColor(region_of_interest, Cv.COLOR_BGR2HSV)
-            #Cv.putText(hsv.__str__())  
          
-        if len(faces3) > 0:
-            bb3  = faces3[0]
-            (x,y,w,h) = faces3[0]
-            Cv.rectangle(im, (x,y), (x+w,y+h), 0, CV_FILLED)
-                    
-        im = Cv.blur(im, (9,9))    
+        
+        #im = Cv.blur(im, (3,3))
         im = filter_skin(im)
+        #im = Cv.blur(im, (3,3))
+        #im = Cv.erode(im,Cv.getStructuringElement(Cv.MORPH_RECT,(ERODE, ERODE)))
+        #im = Cv.erode(im,Cv.getStructuringElement(Cv.MORPH_RECT,(ERODE, ERODE)))
+        #im = Cv.dilate(im,Cv.getStructuringElement(Cv.MORPH_RECT,(DILATE, DILATE)))
+        #Cv.drawContours(final, countours,-1,(64,255,85),-1)
         #im = clarify_image(im)
         
-        skin_im = im.copy();
+        #skin_im = im.copy();
         
-        
-        countours = getLargestCountour(skin_im)
+        countours = 0
+        #countours = getLargestCountour(im)
         
         old_im = im.copy()
         
@@ -254,7 +290,7 @@ if __name__ == '__main__':
                     old_im = Cv.subtract(old_im, im)
                     drawHull(countour, old_im)
                      
-                    defects = getDefects(countour, old_im)
+                    defects, fingers = getDefects(countour, old_im)
                     (x,y),radius = drawPalm(countour, defects, old_im)
                     palm = (x,y),radius                     
      
@@ -275,13 +311,14 @@ if __name__ == '__main__':
                     Cv.circle(old_im,center,radius,WHITE,2)
                     #writeText(old_im, str(radius))
                      
-                    defineHand(old_im, palm, handCircle, defects, countour)        
+                    defineHand(old_im, palm, handCircle, defects, countour, fingers)        
         
-        final = old_im
+        #final = old_im
         #final = Cv.add(im, old_im)
+        #Cv.drawContours(final, countours,-1,(64,255,85),-1)
         
-        
-        Cv.imshow('Hand', final)
+        Cv.imshow('Other', old_im)
+        Cv.imshow('Masked', final)
         #last_frame = final
 #         Cv.imshow('Hand', im)
         
